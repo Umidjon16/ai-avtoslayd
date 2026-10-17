@@ -1,0 +1,6 @@
+{
+  "name": "AI Avto-Slayd",
+  "description": "O'zbekiston maktab o'qituvchilari uchun interaktiv metodik taqdimot va viktorina platformasi",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
