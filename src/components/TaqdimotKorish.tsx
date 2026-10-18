@@ -595,18 +595,19 @@ export const TaqdimotKorish: React.FC<TaqdimotKorishProps> = ({
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex flex-col items-center justify-center p-4">
           <div className="w-full max-w-5xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col border border-[#eaedff]">
             {/* Modal Header */}
+            {/* Modal Header */}
             <div className="px-6 py-4 bg-[#f2f3ff] border-b border-[#eaedff] flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <span className="font-title-md text-title-md text-[#131b2e] font-bold">
                   To'liq ekranda ko'rish: {presentation.title}
                 </span>
                 <span className="px-2.5 py-0.5 rounded-full bg-primary text-white font-code-md text-xs font-bold">
-                  Slayd: 0{activeSlideIndex} / 28
+                  Slayd: {String(activeSlideIndex).padStart(2, '0')} / {slides.length}
                 </span>
               </div>
               <button
                 onClick={() => setFullscreenModalOpen(false)}
-                className="w-8 h-8 rounded-lg hover:bg-[#eaedff] text-[#464555] hover:text-[#131b2e] flex items-center justify-center transition-colors"
+                className="w-8 h-8 rounded-lg hover:bg-[#eaedff] text-[#464555] hover:text-[#131b2e] flex items-center justify-center transition-colors cursor-pointer"
               >
                 <span className="material-symbols-outlined text-[24px]">close</span>
               </button>
@@ -614,170 +615,179 @@ export const TaqdimotKorish: React.FC<TaqdimotKorishProps> = ({
 
             {/* Modal Body: Active Slide Canvas */}
             <div className="p-6 sm:p-10 bg-[#faf8ff] flex flex-col items-center justify-center">
-              <div className="aspect-video w-full max-w-3xl bg-slate-900 rounded-2xl shadow-2xl flex flex-col justify-between p-6 sm:p-8 text-white relative overflow-hidden">
-                {/* Condition 1: Slide 6 (Quiz Question) */}
-                {activeSlideIndex === 6 && (
-                  <>
-                    <div className="flex justify-between items-center z-10">
-                      <span className="font-label-md bg-primary px-3 py-1 rounded-lg text-white font-bold text-xs">
-                        Interaktiv Savol #1
-                      </span>
-                      <span className="font-code-md text-xs text-slate-300">
-                        DTS Standart • PowerPoint Hyperlink Action
-                      </span>
-                    </div>
-                    <div className="text-center z-10 my-auto py-2">
-                      <h3 className="font-headline-lg text-lg sm:text-2xl text-white font-black leading-tight">
-                        Quyosh tizimidagi eng katta sayyora qaysi?
-                      </h3>
-                      <p className="font-body-md text-xs sm:text-sm text-slate-300 mt-2">
-                        To'g'ri variantni tanlang va bosing (Giperhavola tekshiruvi):
-                      </p>
-                    </div>
-                    {/* Interactive Hyperlink Buttons! */}
-                    <div className="grid grid-cols-2 gap-3 sm:gap-4 z-10">
-                      <button
-                        onClick={() => setActiveSlideIndex(8)} // Wrong answer -> slide 8
-                        className="p-3 sm:p-4 rounded-xl bg-white/10 hover:bg-[#ba1a1a] transition-all text-left flex items-center gap-3 cursor-pointer group"
-                      >
-                        <span className="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center font-bold text-xs group-hover:bg-white group-hover:text-[#ba1a1a]">
-                          A
-                        </span>
-                        <span className="font-label-lg text-xs sm:text-sm font-semibold">
-                          Mars sayyorasi
-                        </span>
-                      </button>
-                      <button
-                        onClick={() => setActiveSlideIndex(7)} // Correct answer -> slide 7
-                        className="p-3 sm:p-4 rounded-xl bg-[#006c49] hover:bg-[#005236] text-white transition-all text-left flex items-center gap-3 shadow-md cursor-pointer ring-2 ring-[#6cf8bb]"
-                      >
-                        <span className="w-6 h-6 rounded-md bg-white/30 flex items-center justify-center font-bold text-xs">
-                          B
-                        </span>
-                        <span className="font-label-lg text-xs sm:text-sm font-bold">
-                          Yupiter (Eng gigant) ⭐
-                        </span>
-                      </button>
-                      <button
-                        onClick={() => setActiveSlideIndex(8)} // Wrong answer -> slide 8
-                        className="p-3 sm:p-4 rounded-xl bg-white/10 hover:bg-[#ba1a1a] transition-all text-left flex items-center gap-3 cursor-pointer group"
-                      >
-                        <span className="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center font-bold text-xs group-hover:bg-white group-hover:text-[#ba1a1a]">
-                          C
-                        </span>
-                        <span className="font-label-lg text-xs sm:text-sm font-semibold">
-                          Saturn sayyorasi
-                        </span>
-                      </button>
-                      <button
-                        onClick={() => setActiveSlideIndex(8)} // Wrong answer -> slide 8
-                        className="p-3 sm:p-4 rounded-xl bg-white/10 hover:bg-[#ba1a1a] transition-all text-left flex items-center gap-3 cursor-pointer group"
-                      >
-                        <span className="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center font-bold text-xs group-hover:bg-white group-hover:text-[#ba1a1a]">
-                          D
-                        </span>
-                        <span className="font-label-lg text-xs sm:text-sm font-semibold">
-                          Venera (Tong yulduzi)
-                        </span>
-                      </button>
-                    </div>
-                  </>
-                )}
+              {(() => {
+                const currentSlide = slides.find((s) => s.index === activeSlideIndex) || slides[0];
+                return (
+                  <div className="aspect-video w-full max-w-3xl bg-slate-900 rounded-2xl shadow-2xl flex flex-col justify-between p-6 sm:p-8 text-white relative overflow-hidden">
+                    {/* Background AI Image if present */}
+                    {currentSlide.bgImageUrl && (
+                      <div
+                        className="absolute inset-0 bg-cover bg-center opacity-40 blur-[1px] scale-105"
+                        style={{ backgroundImage: `url('${currentSlide.bgImageUrl}')` }}
+                      ></div>
+                    )}
 
-                {/* Condition 2: Slide 7 (Correct Answer) */}
-                {activeSlideIndex === 7 && (
-                  <div className="flex flex-col items-center justify-between h-full text-center z-10 py-4">
-                    <div className="w-full flex justify-between items-center">
-                      <span className="font-label-md bg-[#006c49] px-3 py-1 rounded-lg text-white font-bold text-xs">
-                        Trigger: To'g'ri javob!
-                      </span>
-                      <span className="font-code-md text-xs text-[#6cf8bb] font-bold">+10 ball</span>
-                    </div>
-                    <div className="flex flex-col items-center gap-2 my-auto">
-                      <span className="text-5xl animate-bounce">👏</span>
-                      <h3 className="font-headline-lg text-xl sm:text-2xl text-[#6cf8bb] font-black">
-                        Barakalla, to'g'ri topdingiz!
-                      </h3>
-                      <p className="font-body-md text-xs sm:text-sm text-slate-200 max-w-md">
-                        Yupiter barcha boshqa sayyoralar umumiy massasidan 2.5 barobar og'irroqdir va Quyosh tizimining haqiqiy gigantidir.
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <button
-                        onClick={() => setActiveSlideIndex(6)}
-                        className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl text-xs font-semibold"
-                      >
-                        Savolga qaytish
-                      </button>
-                      <button
-                        onClick={() => setActiveSlideIndex(1)}
-                        className="px-5 py-2.5 bg-[#006c49] text-white rounded-xl text-xs sm:text-sm font-bold shadow-md hover:bg-[#005236]"
-                      >
-                        Keyingi bo'limga o'tish →
-                      </button>
-                    </div>
+                    {/* Quiz Question Slide */}
+                    {currentSlide.type === 'quiz-question' ? (
+                      <>
+                        <div className="flex justify-between items-center z-10">
+                          <span className="font-label-md bg-primary px-3 py-1 rounded-lg text-white font-bold text-xs">
+                            Interaktiv Savol #{currentSlide.index}
+                          </span>
+                          <span className="font-code-md text-xs text-slate-300">
+                            DTS Standart • Interaktiv Trigger
+                          </span>
+                        </div>
+                        <div className="text-center z-10 my-auto py-2">
+                          <h3 className="font-headline-lg text-lg sm:text-2xl text-white font-black leading-tight">
+                            {currentSlide.title}
+                          </h3>
+                          <p className="font-body-md text-xs sm:text-sm text-slate-300 mt-2">
+                            {currentSlide.subtitle || "To'g'ri variantni tanlang va bosing:"}
+                          </p>
+                        </div>
+                        {/* Interactive Buttons */}
+                        <div className="grid grid-cols-2 gap-3 sm:gap-4 z-10">
+                          {(currentSlide.options && currentSlide.options.length > 0
+                            ? currentSlide.options
+                            : [
+                                { label: 'A', text: "1-variant (Variant A)", isCorrect: false },
+                                { label: 'B', text: "To'g'ri ilmiy javob ⭐", isCorrect: true },
+                                { label: 'C', text: "3-variant (Variant C)", isCorrect: false },
+                                { label: 'D', text: "4-variant (Variant D)", isCorrect: false },
+                              ]
+                          ).map((opt, oIdx) => (
+                            <button
+                              key={oIdx}
+                              onClick={() => {
+                                if (opt.isCorrect) {
+                                  const correctSlide = slides.find((s) => s.type === 'quiz-correct');
+                                  setActiveSlideIndex(correctSlide ? correctSlide.index : Math.min(slides.length, currentSlide.index + 1));
+                                } else {
+                                  const wrongSlide = slides.find((s) => s.type === 'quiz-wrong');
+                                  setActiveSlideIndex(wrongSlide ? wrongSlide.index : currentSlide.index);
+                                }
+                              }}
+                              className={`p-3 sm:p-4 rounded-xl transition-all text-left flex items-center gap-3 cursor-pointer group ${
+                                opt.isCorrect
+                                  ? 'bg-[#006c49]/80 hover:bg-[#005236] text-white ring-2 ring-[#6cf8bb]'
+                                  : 'bg-white/15 hover:bg-[#ba1a1a]/80 text-white'
+                              }`}
+                            >
+                              <span className="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center font-bold text-xs group-hover:bg-white group-hover:text-black">
+                                {opt.label}
+                              </span>
+                              <span className="font-label-lg text-xs sm:text-sm font-semibold">
+                                {opt.text}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    ) : currentSlide.type === 'quiz-correct' ? (
+                      <div className="flex flex-col items-center justify-between h-full text-center z-10 py-4">
+                        <div className="w-full flex justify-between items-center">
+                          <span className="font-label-md bg-[#006c49] px-3 py-1 rounded-lg text-white font-bold text-xs">
+                            To'g'ri javob!
+                          </span>
+                          <span className="font-code-md text-xs text-[#6cf8bb] font-bold">+10 ball</span>
+                        </div>
+                        <div className="flex flex-col items-center gap-2 my-auto">
+                          <span className="text-5xl animate-bounce">👏</span>
+                          <h3 className="font-headline-lg text-xl sm:text-2xl text-[#6cf8bb] font-black">
+                            {currentSlide.title || "Barakalla, to'g'ri topdingiz!"}
+                          </h3>
+                          <p className="font-body-md text-xs sm:text-sm text-slate-200 max-w-md">
+                            {currentSlide.subtitle || "Ajoyib natija! Siz dars mavzusini mukammal o'zlashtirdingiz."}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => setActiveSlideIndex((prev) => Math.max(1, prev - 1))}
+                            className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl text-xs font-semibold cursor-pointer"
+                          >
+                            Savolga qaytish
+                          </button>
+                          <button
+                            onClick={() => setActiveSlideIndex((prev) => Math.min(slides.length, prev + 1))}
+                            className="px-5 py-2.5 bg-[#006c49] text-white rounded-xl text-xs sm:text-sm font-bold shadow-md hover:bg-[#005236] cursor-pointer"
+                          >
+                            Keyingi slaydga o'tish →
+                          </button>
+                        </div>
+                      </div>
+                    ) : currentSlide.type === 'quiz-wrong' ? (
+                      <div className="flex flex-col items-center justify-between h-full text-center z-10 py-4">
+                        <div className="w-full flex justify-between items-center">
+                          <span className="font-label-md bg-[#ba1a1a] px-3 py-1 rounded-lg text-white font-bold text-xs">
+                            Noto'g'ri javob
+                          </span>
+                          <span className="font-code-md text-xs text-[#ffdad6] font-bold">0 ball</span>
+                        </div>
+                        <div className="flex flex-col items-center gap-2 my-auto">
+                          <span className="text-5xl animate-pulse">❌</span>
+                          <h3 className="font-headline-lg text-xl sm:text-2xl text-[#ffdad6] font-black">
+                            {currentSlide.title || "Afsuski, javob noto'g'ri!"}
+                          </h3>
+                          <p className="font-body-md text-xs sm:text-sm text-slate-300 max-w-md">
+                            {currentSlide.subtitle || "Yana bir bor o'ylab ko'ring va to'g'ri javobni tanlashga harakat qiling!"}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => {
+                            const qSlide = slides.find((s) => s.type === 'quiz-question');
+                            setActiveSlideIndex(qSlide ? qSlide.index : Math.max(1, currentSlide.index - 2));
+                          }}
+                          className="px-6 py-2.5 bg-white text-[#131b2e] rounded-xl text-xs sm:text-sm font-bold shadow-lg hover:bg-slate-200 transition-colors flex items-center gap-2 cursor-pointer"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">replay</span>
+                          <span>Qayta urinib ko'rish</span>
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col justify-between h-full z-10">
+                        <div className="flex justify-between items-center">
+                          <span className="bg-primary px-3 py-1 rounded-lg text-white font-bold text-xs">
+                            Slayd #{currentSlide.index} • {currentSlide.type.toUpperCase()}
+                          </span>
+                          <span className="text-xs text-slate-300 flex items-center gap-1">
+                            <span className="material-symbols-outlined text-[15px] text-[#6cf8bb]">verified</span>
+                            DTS Metodikasi
+                          </span>
+                        </div>
+                        <div className="my-auto text-center py-4 bg-black/40 backdrop-blur-xs p-6 rounded-2xl border border-white/10">
+                          <h3 className="text-xl sm:text-2xl font-black text-white">
+                            {currentSlide.title}
+                          </h3>
+                          <p className="text-sm text-slate-200 mt-2 max-w-xl mx-auto leading-relaxed">
+                            {currentSlide.subtitle}
+                          </p>
+                          {currentSlide.badges && currentSlide.badges.length > 0 && (
+                            <div className="flex items-center justify-center gap-2 mt-4 flex-wrap">
+                              {currentSlide.badges.map((b, bIdx) => (
+                                <span key={bIdx} className="px-2.5 py-0.5 rounded-full bg-white/20 text-[#e2dfff] text-xs font-semibold">
+                                  {b}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex justify-between text-xs text-slate-400">
+                          <span>16:9 Widescreen HD</span>
+                          <span>AI Avto-Slayd Engine (Gemini & Flux)</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
-
-                {/* Condition 3: Slide 8 (Wrong Answer) */}
-                {activeSlideIndex === 8 && (
-                  <div className="flex flex-col items-center justify-between h-full text-center z-10 py-4">
-                    <div className="w-full flex justify-between items-center">
-                      <span className="font-label-md bg-[#ba1a1a] px-3 py-1 rounded-lg text-white font-bold text-xs">
-                        Trigger: Noto'g'ri javob
-                      </span>
-                      <span className="font-code-md text-xs text-[#ffdad6] font-bold">0 ball</span>
-                    </div>
-                    <div className="flex flex-col items-center gap-2 my-auto">
-                      <span className="text-5xl animate-pulse">❌</span>
-                      <h3 className="font-headline-lg text-xl sm:text-2xl text-[#ffdad6] font-black">
-                        Afsuski, javob noto'g'ri!
-                      </h3>
-                      <p className="font-body-md text-xs sm:text-sm text-slate-300 max-w-md">
-                        Ushbu sayyora katta bo'lishi mumkin, ammo Quyosh tizimi giganti boshqa. Yana bir bor urinib ko'ring!
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => setActiveSlideIndex(6)}
-                      className="px-6 py-2.5 bg-white text-[#131b2e] rounded-xl text-xs sm:text-sm font-bold shadow-lg hover:bg-slate-200 transition-colors flex items-center gap-2"
-                    >
-                      <span className="material-symbols-outlined text-[18px]">replay</span>
-                      <span>Qayta urinib ko'rish (Savolga qaytish)</span>
-                    </button>
-                  </div>
-                )}
-
-                {/* Condition 4: Other slides (Cover / Content) */}
-                {activeSlideIndex !== 6 && activeSlideIndex !== 7 && activeSlideIndex !== 8 && (
-                  <div className="flex flex-col justify-between h-full z-10">
-                    <div className="flex justify-between items-center">
-                      <span className="bg-primary px-3 py-1 rounded-lg text-white font-bold text-xs">
-                        Slayd #{activeSlideIndex}
-                      </span>
-                      <span className="text-xs text-slate-300">DTS Metodikasi</span>
-                    </div>
-                    <div className="my-auto text-center">
-                      <h3 className="text-xl sm:text-2xl font-black text-white">
-                        {slides.find((s) => s.index === activeSlideIndex)?.title || "Slayd kontenti"}
-                      </h3>
-                      <p className="text-sm text-slate-300 mt-2">
-                        {slides.find((s) => s.index === activeSlideIndex)?.subtitle || "Pedagogik tushuntirish va infografik tasvirlar"}
-                      </p>
-                    </div>
-                    <div className="flex justify-between text-xs text-slate-400">
-                      <span>16:9 Widescreen</span>
-                      <span>AI Avto-Slayd Engine</span>
-                    </div>
-                  </div>
-                )}
-              </div>
+                );
+              })()}
             </div>
 
             {/* Modal Footer Navigation */}
             <div className="px-6 py-4 bg-[#f2f3ff] border-t border-[#eaedff] flex items-center justify-between">
               <button
                 onClick={() => setActiveSlideIndex((prev) => Math.max(1, prev - 1))}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white hover:bg-[#eaedff] text-[#131b2e] font-label-md text-xs sm:text-sm font-semibold border border-[#eaedff]"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white hover:bg-[#eaedff] text-[#131b2e] font-label-md text-xs sm:text-sm font-semibold border border-[#eaedff] cursor-pointer"
               >
                 <span className="material-symbols-outlined text-[18px]">arrow_back</span>
                 Oldingi slayd
@@ -786,16 +796,16 @@ export const TaqdimotKorish: React.FC<TaqdimotKorishProps> = ({
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleDownload}
-                  className="px-4 py-2 bg-primary text-white rounded-xl font-label-md text-xs sm:text-sm font-bold flex items-center gap-1.5 hover:bg-primary-container transition-colors"
+                  className="px-4 py-2 bg-primary text-white rounded-xl font-label-md text-xs sm:text-sm font-bold flex items-center gap-1.5 hover:bg-primary/90 transition-colors cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-[16px]">download</span>
-                  Ushbu taqdimotni yuklash (.pptx)
+                  Taqdimotni yuklab olish (.pptx)
                 </button>
               </div>
 
               <button
-                onClick={() => setActiveSlideIndex((prev) => Math.min(28, prev + 1))}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white hover:bg-[#eaedff] text-[#131b2e] font-label-md text-xs sm:text-sm font-semibold border border-[#eaedff]"
+                onClick={() => setActiveSlideIndex((prev) => Math.min(slides.length, prev + 1))}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white hover:bg-[#eaedff] text-[#131b2e] font-label-md text-xs sm:text-sm font-semibold border border-[#eaedff] cursor-pointer"
               >
                 Keyingi slayd
                 <span className="material-symbols-outlined text-[18px]">arrow_forward</span>

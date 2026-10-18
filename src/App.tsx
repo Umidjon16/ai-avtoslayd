@@ -3,6 +3,7 @@ import {
   PageTab,
   UserProfile,
   Presentation,
+  SlideItem,
   CreditTransaction,
   PaymentRequest,
   AuditLog,
@@ -258,13 +259,23 @@ export default function App() {
   };
 
   // 5. Complete generation
-  const handleCompleteGeneration = () => {
+  const handleCompleteGeneration = (generatedSlides?: SlideItem[]) => {
     const nextList = presentations.map((p) =>
-      p.id === activePresentation.id ? { ...p, status: 'Tayyor' as const } : p
+      p.id === activePresentation.id
+        ? {
+            ...p,
+            status: 'Tayyor' as const,
+            slides: generatedSlides && generatedSlides.length > 0 ? generatedSlides : p.slides,
+          }
+        : p
     );
     setPresentations(nextList);
     StorageService.savePresentations(nextList);
-    setActivePresentation((prev) => ({ ...prev, status: 'Tayyor' as const }));
+    setActivePresentation((prev) => ({
+      ...prev,
+      status: 'Tayyor' as const,
+      slides: generatedSlides && generatedSlides.length > 0 ? generatedSlides : prev.slides,
+    }));
     setCurrentTab('taqdimot-korish');
   };
 

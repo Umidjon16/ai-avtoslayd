@@ -55,6 +55,51 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const [quizPrice, setQuizPrice] = useState(pricing.quizPrice);
   const [welcomeBonus, setWelcomeBonus] = useState(pricing.welcomeBonus);
 
+  // Cloudflare & AI settings
+  const [cfAccountId, setCfAccountId] = useState('');
+  const [cfApiToken, setCfApiToken] = useState('');
+  const [preferredEngine, setPreferredEngine] = useState<'pollinations' | 'cloudflare'>('pollinations');
+  const [isCfSaving, setIsCfSaving] = useState(false);
+  const [cfConfigured, setCfConfigured] = useState(false);
+
+  React.useEffect(() => {
+    fetch('/api/settings/ai')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.cloudflare) {
+          setCfConfigured(data.cloudflare.isConfigured);
+        }
+        if (data.preferredImageEngine) {
+          setPreferredEngine(data.preferredImageEngine);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleSaveAiSettings = async () => {
+    setIsCfSaving(true);
+    try {
+      const res = await fetch('/api/settings/ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          accountId: cfAccountId,
+          apiToken: cfApiToken,
+          preferredEngine,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCfConfigured(data.cloudflareConfigured);
+        showToast("Cloudflare va AI sozlamalari muvaffaqiyatli saqlandi!");
+      }
+    } catch (err) {
+      showToast("Sozlamalarni saqlashda xatolik yuz berdi", true);
+    } finally {
+      setIsCfSaving(false);
+    }
+  };
+
   const showToast = (msg: string, isError = false) => {
     setToastMessage(msg);
     setToastError(isError);
@@ -789,6 +834,194 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               <span className="material-symbols-outlined text-[18px]">save</span>
               <span>Narx Siyosatini Saqlash va Kuchga Kiritish</span>
             </button>
+          </div>
+        </div>
+
+        {/* SECTION: AI Dvigatellari & Cloudflare / Gemini Integratsiyasi */}
+        <div className="bg-white p-6 rounded-2xl shadow-xs border border-[#eaedff] flex flex-col gap-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#eaedff]">
+            <div className="flex items-center gap-3">
+              <span className="w-10 h-10 rounded-xl bg-[#ffeed9] flex items-center justify-center text-[#f38020] font-bold shadow-xs">
+                <span className="material-symbols-outlined text-[24px]">cloud_sync</span>
+              </span>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="font-title-md text-base text-[#131b2e] font-bold">
+                    Sun'iy Intellekt va Cloudflare Integratsiyasi
+                  </h2>
+                  <span className="px-2 py-0.5 rounded-full bg-[#f38020]/15 text-[#b94a00] font-code-md text-[11px] font-bold">
+                    Cloudflare + Gemini
+                  </span>
+                </div>
+                <p className="text-xs text-[#464555]">
+                  Gamma o'rniga Cloudflare Workers AI, Google Gemini va Pollinations dvigatellari bilan uzluksiz ishlash.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="px-3 py-1 rounded-full bg-[#e2fbd7] text-[#006c49] text-xs font-bold flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-[#006c49] animate-pulse"></span>
+                Gemini 3.8 Flash Faol
+              </span>
+            </div>
+          </div>
+
+          {/* Engine status cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Gemini */}
+            <div className="p-4 rounded-xl bg-[#f2f3ff] border border-[#eaedff] flex flex-col justify-between gap-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="w-7 h-7 rounded-lg bg-primary text-white flex items-center justify-center">
+                    <span className="material-symbols-outlined text-[16px]">psychology</span>
+                  </span>
+                  <span className="text-xs font-bold text-[#131b2e]">Google Gemini AI</span>
+                </div>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#006c49] text-white">
+                  Ulangan
+                </span>
+              </div>
+              <p className="text-[11px] text-[#464555]">
+                Dars strukturasi, pedagogik tahlil, DTS talablari va o'zbek tilidagi taqdimot kontentini ishlab chiquvchi asosiy intellektual miya.
+              </p>
+              <div className="pt-2 border-t border-[#eaedff] flex items-center justify-between text-[11px]">
+                <span className="text-[#464555]">Model:</span>
+                <span className="font-code-md font-bold text-primary">gemini-3.8-flash</span>
+              </div>
+            </div>
+
+            {/* Cloudflare Workers AI */}
+            <div className="p-4 rounded-xl bg-[#fff8f2] border border-[#ffeed9] flex flex-col justify-between gap-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="w-7 h-7 rounded-lg bg-[#f38020] text-white flex items-center justify-center">
+                    <span className="material-symbols-outlined text-[16px]">bolt</span>
+                  </span>
+                  <span className="text-xs font-bold text-[#131b2e]">Cloudflare Workers AI</span>
+                </div>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${cfConfigured ? 'bg-[#006c49] text-white' : 'bg-[#e2e7ff] text-[#3525cd]'}`}>
+                  {cfConfigured ? 'Ulangan' : 'Sozlangan (Ixtiyoriy)'}
+                </span>
+              </div>
+              <p className="text-[11px] text-[#464555]">
+                Har kuni 10,000 ta bepul neyron, Flux-1 Schnell rasm generatsiyasi va O'zbekiston ichida tezkor kesh serverlari (Tashkent Edge).
+              </p>
+              <div className="pt-2 border-t border-[#ffeed9] flex items-center justify-between text-[11px]">
+                <span className="text-[#464555]">Kvota:</span>
+                <span className="font-code-md font-bold text-[#f38020]">10,000 req/kun bepul</span>
+              </div>
+            </div>
+
+            {/* Pollinations AI */}
+            <div className="p-4 rounded-xl bg-[#f2fbf7] border border-[#daede2] flex flex-col justify-between gap-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="w-7 h-7 rounded-lg bg-[#006c49] text-white flex items-center justify-center">
+                    <span className="material-symbols-outlined text-[16px]">palette</span>
+                  </span>
+                  <span className="text-xs font-bold text-[#131b2e]">Pollinations AI (Flux)</span>
+                </div>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#006c49] text-white">
+                  Avtomatik Faol
+                </span>
+              </div>
+              <p className="text-[11px] text-[#464555]">
+                Cheksiz, 100% bepul rasm generatori. Hech qanday hisob yoki kalit talab etilmaydi, har doim ishonchli ishlaydi.
+              </p>
+              <div className="pt-2 border-t border-[#daede2] flex items-center justify-between text-[11px]">
+                <span className="text-[#464555]">Holat:</span>
+                <span className="font-code-md font-bold text-[#006c49]">Doimiy bepul</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Cloudflare Account Credentials Config */}
+          <div className="p-4 rounded-xl bg-[#faf8ff] border border-[#eaedff] flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-xs font-bold text-[#131b2e]">
+                  Cloudflare Hisobini Ulash (Ixtiyoriy kengaytirish)
+                </h3>
+                <p className="text-[11px] text-[#464555]">
+                  Agar Cloudflare dashboardingizdan Account ID va API Tokeningizni kiritsangiz, tizim to'g'ridan-to'g'ri Cloudflare Workers AI orqali rasmlarni generatsiya qiladi.
+                </p>
+              </div>
+              <a
+                href="https://dash.cloudflare.com"
+                target="_blank"
+                rel="noreferrer"
+                className="text-[11px] text-[#3525cd] hover:underline font-bold flex items-center gap-1"
+              >
+                dash.cloudflare.com
+                <span className="material-symbols-outlined text-[14px]">open_in_new</span>
+              </a>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-bold text-[#131b2e]">
+                  Cloudflare Account ID:
+                </label>
+                <input
+                  type="text"
+                  value={cfAccountId}
+                  onChange={(e) => setCfAccountId(e.target.value)}
+                  placeholder="masalan: 98a76b5c4d3e2f1..."
+                  className="w-full h-10 px-3 rounded-lg bg-white border border-[#c7c4d8] text-xs font-code-md text-[#131b2e] outline-none focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-bold text-[#131b2e]">
+                  Cloudflare API Token (Workers AI Read/Write):
+                </label>
+                <input
+                  type="password"
+                  value={cfApiToken}
+                  onChange={(e) => setCfApiToken(e.target.value)}
+                  placeholder="••••••••••••••••••••••••••••••"
+                  className="w-full h-10 px-3 rounded-lg bg-white border border-[#c7c4d8] text-xs font-code-md text-[#131b2e] outline-none focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-[#eaedff]">
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-bold text-[#131b2e]">Afzal ko'rilgan Rasm Dvigateli:</span>
+                <div className="flex items-center gap-2">
+                  <label className="flex items-center gap-1.5 text-xs text-[#131b2e] cursor-pointer">
+                    <input
+                      type="radio"
+                      name="engine"
+                      checked={preferredEngine === 'pollinations'}
+                      onChange={() => setPreferredEngine('pollinations')}
+                      className="accent-primary"
+                    />
+                    Pollinations AI (Bepul, cheksiz)
+                  </label>
+                  <label className="flex items-center gap-1.5 text-xs text-[#131b2e] cursor-pointer">
+                    <input
+                      type="radio"
+                      name="engine"
+                      checked={preferredEngine === 'cloudflare'}
+                      onChange={() => setPreferredEngine('cloudflare')}
+                      className="accent-[#f38020]"
+                    />
+                    Cloudflare Workers AI (Flux-1)
+                  </label>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleSaveAiSettings}
+                disabled={isCfSaving}
+                className="h-9 px-4 bg-[#f38020] hover:bg-[#d96e14] text-white text-xs font-bold rounded-lg shadow-sm transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                <span className="material-symbols-outlined text-[16px]">check_circle</span>
+                <span>{isCfSaving ? 'Saqlanmoqda...' : 'Cloudflare Sozlamalarini Saqlash'}</span>
+              </button>
+            </div>
           </div>
         </div>
 
